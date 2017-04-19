@@ -1,0 +1,14 @@
+{
+  "name": "api-server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node server"
+  },
+  "author": "Kirill Bondarev",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.15.2"
+  }
+}
