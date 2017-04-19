@@ -1,0 +1,9 @@
+{
+  "dbUri": "mongodb://localhost/web",
+
+  "jwtSecret": "secret",
+  "jwtSignExpiresIn": 604800,
+
+  "cors": true,
+  "port": 8080
+}
