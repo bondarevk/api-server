@@ -22,6 +22,7 @@ module.exports.login = (req, res, next) => {
   const userInfo = helpers.getUserInfo(req.user);
 
   res.status(200).json({
+    result: 'success',
     token: `JWT ${generateToken(userInfo)}`,
     user: userInfo
   });

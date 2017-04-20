@@ -17,8 +17,8 @@ authRouter.post('/register', authenticationController.register);
 
 // Тестовый
 const testRouter = express.Router();
-testRouter.get('/at', requireAuth, (req, res) => {
-  res.send('ok');
+testRouter.all('/at', requireAuth, (req, res) => {
+  res.send('(Super Secret)');
 });
 
 
