@@ -4,24 +4,24 @@ const passport = require('passport');
 const authenticationController = require('./controllers/authentication');
 
 const apiRouter = express.Router();
+
+const passportService = require('./auth/passport');
+
+const requireAuth = passport.authenticate('jwt', {session: false});
+const requireLogin = passport.authenticate('local', {session: false});
+
+// Авторизация
 const authRouter = express.Router();
-const testRouter = express.Router();
-
-const passportService = require('./config/passport');
-
-const requireAuth = passport.authenticate('jwt', { session: false });
-const requireLogin = passport.authenticate('local', { session: false });
-
-// Auth Router
-apiRouter.use('/auth', authRouter);
 authRouter.post('/login', requireLogin, authenticationController.login);
 authRouter.post('/register', authenticationController.register);
 
-// Test Router
-apiRouter.use('/test', testRouter);
+// Тестовый
+const testRouter = express.Router();
 testRouter.get('/at', requireAuth, (req, res) => {
-    res.send('ok');
+  res.send('ok');
 });
 
 
+apiRouter.use('/auth', authRouter);
+apiRouter.use('/test', testRouter);
 module.exports = apiRouter;

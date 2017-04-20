@@ -5,77 +5,68 @@ const helpers = require('../helpers');
 const config = require('../../config/main');
 
 /**
- *
- * @param user
- * @returns {*}
+ * Генерация токена
+ * @param userInfo Базовая информация о пользователе
+ * @returns {string} Токен
  */
-function generateToken(user) {
-    return jwt.sign(user, config.jwtSecret, {
-        expiresIn: config.jwtSignExpiresIn
-    });
+function generateToken(userInfo) {
+  return jwt.sign(userInfo, config.jwtSecret, {
+    expiresIn: config.jwtSignExpiresIn
+  });
 }
 
 /**
- * Login
- * @param req
- * @param res
- * @param next
+ * Авторизация логином и паролем
  */
 module.exports.login = (req, res, next) => {
-    const userInfo = helpers.getUserInfo(req.user);
+  const userInfo = helpers.getUserInfo(req.user);
 
-    res.status(200).json({
-        token: `JWT ${generateToken(userInfo)}`,
-        user: userInfo
-    });
+  res.status(200).json({
+    token: `JWT ${generateToken(userInfo)}`,
+    user: userInfo
+  });
 };
 
 /**
- * Registration
- * @param req
- * @param res
- * @param next
+ * Регистрация нового пользователя
  */
 exports.register = function (req, res, next) {
-    const email = req.body.email;
-    const firstName = req.body.firstName;
-    const lastName = req.body.lastName;
-    const password = req.body.password;
+  const username = req.body.username;
+  const password = req.body.password;
 
-    if (!email) {
-        return res.status(422).send({ error: 'You must enter an email address.' });
+  if (!username) {
+    return res.status(400).send({error: 'Для регистрации пользователя требуется Username.'});
+  }
+
+  if (!password) {
+    return res.status(400).send({error: 'Для регистрации пользователя требуется Password.'});
+  }
+
+  User.findOne({username}, (error, existingUser) => {
+    if (error) {
+      return next(error);
     }
 
-    if (!firstName || !lastName) {
-        return res.status(422).send({ error: 'You must enter your full name.' });
+    if (existingUser) {
+      return res.status(400).send({error: 'Этот логин занят.'});
     }
 
-    if (!password) {
-        return res.status(422).send({ error: 'You must enter a password.' });
-    }
-
-    User.findOne({ email }, (err, existingUser) => {
-        if (err) { return next(err); }
-
-        if (existingUser) {
-            return res.status(422).send({ error: 'That email address is already in use.' });
-        }
-
-        const user = new User({
-            email,
-            password,
-            profile: { firstName, lastName }
-        });
-
-        user.save((err, user) => {
-            if (err) { return next(err); }
-
-            const userInfo = helpers.getUserInfo(user);
-
-            res.status(201).json({
-                token: `JWT ${generateToken(userInfo)}`,
-                user: userInfo
-            });
-        });
+    // Создаем нового пользователя
+    const user = new User({
+      username: username,
+      password: password
     });
+
+    user.save((error, user) => {
+      if (error) {
+        return next(error);
+      }
+
+      const userInfo = helpers.getUserInfo(user);
+
+      res.status(200).json({
+        result: 'success'
+      });
+    });
+  });
 };
