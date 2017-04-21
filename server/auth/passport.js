@@ -13,7 +13,7 @@ const localOptions = {
   usernameField: 'username'
 };
 const localLogin = new localStrategy(localOptions, (username, password, done) => {
-  User.findOne({username}, (error, user) => {
+  User.findOne({username}, null, {collation: {locale: 'en', strength: 2}}, (error, user) => {
 
     if (error) {
       return done(error);

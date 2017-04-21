@@ -10,7 +10,7 @@ const roles = require('../../config/roles');
 const UserSchema = new Schema({
     username: {
       type: String,
-      lowercase: true,
+      index: true,
       unique: true,
       required: true
     },

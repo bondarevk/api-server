@@ -43,7 +43,7 @@ exports.register = function (req, res, next) {
     return res.status(400).json({error: 'Для регистрации пользователя требуется Password.', errno: 31});
   }
 
-  User.findOne({username}, (error, existingUser) => {
+  User.findOne({username}, null, {collation: {locale: 'en', strength: 2}}, (error, existingUser) => {
     if (error) {
       return next(error);
     }
@@ -88,7 +88,7 @@ exports.roleAuthorization = function (requiredRole) {
         return next();
       }
 
-      return res.status(403).json({error: 'Доступ запрещен.', errno: 50});
+      return res.status(403).json({error: 'Доступ запрещен.', errno: 51});
     })
   }
 };
