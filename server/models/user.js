@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const Schema = mongoose.Schema;
+const ValidationError = mongoose.Error.ValidationError;
 
 const roles = require('../../config/roles');
 
@@ -12,7 +13,8 @@ const UserSchema = new Schema({
       type: String,
       index: true,
       unique: true,
-      required: true
+      required: true,
+      match: /^[\w@$!%*#?&]{6,12}$/
     },
     password: {
       type: String,
@@ -35,6 +37,12 @@ const UserSchema = new Schema({
  */
 UserSchema.pre('save', function (next) {
   if (!this.isModified('password')) return next();
+
+  if (!this.password.match(/^[\w@$!%*#?&]{8,32}$/)) {
+    const err = new ValidationError('Password Validation Error');
+    next(err);
+    return;
+  }
 
   const saltRounds = 10;
   bcrypt.hash(this.password, saltRounds, (error, hash) => {

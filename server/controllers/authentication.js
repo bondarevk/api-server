@@ -60,10 +60,12 @@ exports.register = function (req, res, next) {
 
     user.save((error, user) => {
       if (error) {
+        if (error.name === 'ValidationError') {
+          res.status(400).json({error: 'Ошибка валидации.', errno: 33});
+          return;
+        }
         return next(error);
       }
-
-      const userInfo = helpers.getUserInfo(user);
 
       res.status(201).json({
         result: 'success'
