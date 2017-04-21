@@ -18,7 +18,7 @@ function generateToken(userInfo) {
 /**
  * Авторизация логином и паролем
  */
-module.exports.login = (req, res, next) => {
+exports.login = (req, res, next) => {
   const userInfo = helpers.getUserInfo(req.user);
 
   res.status(200).json({
@@ -36,11 +36,11 @@ exports.register = function (req, res, next) {
   const password = req.body.password;
 
   if (!username) {
-    return res.status(400).send({error: 'Для регистрации пользователя требуется Username.'});
+    return res.status(400).json({error: 'Для регистрации пользователя требуется Username.', errno: 31});
   }
 
   if (!password) {
-    return res.status(400).send({error: 'Для регистрации пользователя требуется Password.'});
+    return res.status(400).json({error: 'Для регистрации пользователя требуется Password.', errno: 31});
   }
 
   User.findOne({username}, (error, existingUser) => {
@@ -49,7 +49,7 @@ exports.register = function (req, res, next) {
     }
 
     if (existingUser) {
-      return res.status(400).send({error: 'Этот логин занят.'});
+      return res.status(400).json({error: 'Этот логин занят.', errno: 32});
     }
 
     // Создаем нового пользователя
@@ -65,9 +65,30 @@ exports.register = function (req, res, next) {
 
       const userInfo = helpers.getUserInfo(user);
 
-      res.status(200).json({
+      res.status(201).json({
         result: 'success'
       });
     });
   });
+};
+
+/**
+ * Ограничение прав по уровням доступа
+ * @param requiredRole Требуемый уровень
+ */
+exports.roleAuthorization = function (requiredRole) {
+  return function (req, res, next) {
+    User.findById(req.user.id, (error, user) => {
+      if (error) {
+        res.status(401).send('Unauthorized');
+        return next(error);
+      }
+
+      if (user.role >= requiredRole) {
+        return next();
+      }
+
+      return res.status(403).json({error: 'Доступ запрещен.', errno: 50});
+    })
+  }
 };

@@ -19,7 +19,7 @@ const localLogin = new localStrategy(localOptions, (username, password, done) =>
       return done(error);
     }
     if (!user) {
-      return done(null, false, {error: 'Your login details could not be verified. Please try again.'});
+      return done(null, false, {error: 'Неверный логин или пароль.', errno: 41});
     }
 
     user.comparePassword(password, (error, isMatch) => {
@@ -28,7 +28,7 @@ const localLogin = new localStrategy(localOptions, (username, password, done) =>
         return done(error);
       }
       if (!isMatch) {
-        return done(null, false, {error: 'Your login details could not be verified. Please try again.'});
+        return done(null, false, {error: 'Неверный логин или пароль.', errno: 41});
       }
 
       return done(null, user);
