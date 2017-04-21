@@ -4,3 +4,14 @@ module.exports.getUserInfo = (user) => {
     role: user.role
   };
 };
+
+module.exports.changeUserPassword = (user, password, cb) => {
+  user.password = password;
+  user.save()
+    .then((user) => {
+      cb(null)
+    })
+    .catch((error) => {
+      cb(error);
+    })
+};

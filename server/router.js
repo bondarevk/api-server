@@ -14,6 +14,7 @@ const requireLogin = passport.authenticate('local', {session: false});
 // Авторизация
 const authRouter = express.Router();
 authRouter.post('/login', requireLogin, authenticationController.login);
+authRouter.post('/reset', requireAuth, authenticationController.roleAuthorization(roles.Member), authenticationController.resetPassword);
 authRouter.post('/register', authenticationController.register); //requireAuth, authenticationController.roleAuthorization(roles.Admin),
 
 // Тестовый

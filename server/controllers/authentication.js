@@ -69,6 +69,42 @@ exports.register = function (req, res, next) {
     })
 };
 
+/**
+ * Изменение пароля
+ */
+exports.resetPassword = function (req, res, next) {
+  const user = req.user;
+  const oldPassword = req.body.oldPassword;
+  const newPassword = req.body.newPassword;
+
+  if (!oldPassword || !newPassword) {
+    return res.status(400).json({error: 'Отсутствуют обязательные параметры.', errno: 31});
+  }
+
+  user.comparePassword(oldPassword, (error, result) => {
+    if (error) {
+      return res.status(400).json({error: 'Ошибка проверки пароля.', errno: 62});
+    }
+    if (!result) {
+      return res.status(400).json({error: 'Неверный старый пароль.', errno: 63});
+    }
+    helpers.changeUserPassword(user, newPassword, (error) => {
+
+      if (error) {
+        if (error.name === 'ValidationError') {
+          return res.status(400).json({error: 'Ошибка валидации.', errno: 33})
+        }
+        return res.status(400).json({error: 'Ошибка изменения пароля.', errno: 64})
+      }
+
+      res.status(200).json({
+        result: 'success',
+        token: `JWT ${generateToken(user)}`,
+        user: helpers.getUserInfo(user)
+      })
+    })
+  })
+};
 
 /**
  * Ограничение прав по уровням доступа
@@ -76,17 +112,16 @@ exports.register = function (req, res, next) {
  */
 exports.roleAuthorization = function (requiredRole) {
   return function (req, res, next) {
-    User.findById(req.user.id, (error, user) => {
-      if (error) {
+    User.findById(req.user.id)
+      .then((user) => {
+        if (user.role >= requiredRole) {
+          return next();
+        }
+        return res.status(403).json({error: 'Доступ запрещен.', errno: 51});
+      })
+      .catch((error) => {
         res.status(401).send('Unauthorized');
         return next(error);
-      }
-
-      if (user.role >= requiredRole) {
-        return next();
-      }
-
-      return res.status(403).json({error: 'Доступ запрещен.', errno: 51});
-    })
+      })
   }
 };
