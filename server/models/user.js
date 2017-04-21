@@ -24,9 +24,7 @@ const UserSchema = new Schema({
       type: Number,
       enum: roles,
       default: 1
-    },
-    resetPasswordToken: {type: String},
-    resetPasswordExpires: {type: Date}
+    }
   },
   {
     timestamps: true

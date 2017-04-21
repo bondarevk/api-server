@@ -45,9 +45,9 @@ const jwtOptions = {
   secretOrKey: config.jwtSecret
 };
 const jwtLogin = new jwtStrategy(jwtOptions, (payload, done) => {
-  User.findById(payload._id, (error, user) => {
+  User.findOne({_id: payload._id, username: payload.username, password: payload.password}, (error, user) => {
     if (error) {
-      return done(err, false);
+      return done(error, false);
     }
 
     if (user) {

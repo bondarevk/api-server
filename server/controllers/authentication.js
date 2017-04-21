@@ -6,11 +6,15 @@ const config = require('../../config/main');
 
 /**
  * Генерация токена
- * @param userInfo Базовая информация о пользователе
+ * @param user Информация о пользователе
  * @returns {string} Токен
  */
-function generateToken(userInfo) {
-  return jwt.sign(userInfo, config.jwtSecret, {
+function generateToken(user) {
+  return jwt.sign({
+    _id: user.id,
+    username: user.username,
+    password: user.password
+  }, config.jwtSecret, {
     expiresIn: config.jwtSignExpiresIn
   });
 }
@@ -19,13 +23,11 @@ function generateToken(userInfo) {
  * Авторизация логином и паролем
  */
 exports.login = (req, res, next) => {
-  const userInfo = helpers.getUserInfo(req.user);
-
   res.status(200).json({
     result: 'success',
-    token: `JWT ${generateToken(userInfo)}`,
-    user: userInfo
-  });
+    token: `JWT ${generateToken(req.user)}`,
+    user: helpers.getUserInfo(req.user)
+  })
 };
 
 /**
@@ -73,6 +75,7 @@ exports.register = function (req, res, next) {
     });
   });
 };
+
 
 /**
  * Ограничение прав по уровням доступа
