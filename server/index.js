@@ -6,6 +6,7 @@ const config = require('../config/main');
 const router = require('./router');
 const app = express();
 
+mongoose.Promise = require('bluebird');
 mongoose.connect(config.dbUri);
 
 app.use(bodyParser.urlencoded({extended: false}));

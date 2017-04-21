@@ -37,43 +37,36 @@ exports.register = function (req, res, next) {
   const username = req.body.username;
   const password = req.body.password;
 
-  if (!username) {
-    return res.status(400).json({error: 'Для регистрации пользователя требуется Username.', errno: 31});
+  if (!username || !password) {
+    return res.status(400).json({error: 'Отсутствуют обязательные параметры.', errno: 31});
   }
 
-  if (!password) {
-    return res.status(400).json({error: 'Для регистрации пользователя требуется Password.', errno: 31});
-  }
+  User.findOne({username}, null, {collation: {locale: 'en', strength: 2}})
+    .then((existingUser) => {
 
-  User.findOne({username}, null, {collation: {locale: 'en', strength: 2}}, (error, existingUser) => {
-    if (error) {
-      return next(error);
-    }
-
-    if (existingUser) {
-      return res.status(400).json({error: 'Этот логин занят.', errno: 32});
-    }
-
-    // Создаем нового пользователя
-    const user = new User({
-      username: username,
-      password: password
-    });
-
-    user.save((error, user) => {
-      if (error) {
-        if (error.name === 'ValidationError') {
-          res.status(400).json({error: 'Ошибка валидации.', errno: 33});
-          return;
-        }
-        return next(error);
+      if (existingUser) {
+        return res.status(400).json({error: 'Этот логин занят.', errno: 32});
       }
 
-      res.status(201).json({
-        result: 'success'
+      // Создаем нового пользователя
+      const user = new User({
+        username: username,
+        password: password
       });
-    });
-  });
+      user.save()
+        .then((user) => {
+          res.status(200).json({result: 'success'})
+        })
+        .catch((error) => {
+          if (error.name === 'ValidationError') {
+            return res.status(400).json({error: 'Ошибка валидации.', errno: 33});
+          }
+          return next(error);
+        })
+    })
+    .catch((error) => {
+      return next(error);
+    })
 };
 
 
