@@ -20,10 +20,10 @@ authRouter.post('/register', authenticationController.register); //requireAuth, 
 // Тестовый
 const testRouter = express.Router();
 testRouter.all('/admin-only', requireAuth, authenticationController.roleAuthorization(roles.Admin), (req, res) => {
-  res.send('Whoop!');
+  res.send('Admin!');
 });
 testRouter.all('/member-only', requireAuth, authenticationController.roleAuthorization(roles.Member), (req, res) => {
-  res.send(':3');
+  res.send('Member!');
 });
 
 
