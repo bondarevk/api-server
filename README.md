@@ -11,7 +11,7 @@ npm start
 Роутинг: 
 
 ```
-/api/auth/login         | Аутентификация
+/api/auth/login         | Вход по логину и паролю
 /api/auth/reset         | Изменение пароля
 /api/auth/register      | Регистрация пользователя
 
